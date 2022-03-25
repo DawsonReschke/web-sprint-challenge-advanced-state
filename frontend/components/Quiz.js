@@ -1,34 +1,47 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { connect } from 'react-redux'
+import * as actionCreators from "../state/action-creators"
+function Quiz(props) {
+  const {
+    fetchQuiz,
+    selectAnswer,
+    selectedAnswer,
+    postAnswer,
+    quiz
+  } = props
+  useEffect(()=>{
+    fetchQuiz()
+  },[])
 
-export default function Quiz(props) {
   return (
     <div id="wrapper">
       {
         // quiz already in state? Let's use that, otherwise render "Loading next quiz..."
-        true ? (
+        quiz ? (
           <>
-            <h2>What is a closure?</h2>
-
+            <h2>{quiz?.question}</h2>
             <div id="quizAnswers">
-              <div className="answer selected">
-                A function
-                <button>
-                  SELECTED
+              <div className={selectedAnswer === quiz?.true_answer?.answer_id ? "answer selected" : 'answer'}>
+                {quiz?.true_answer?.text}
+                <button onClick={()=>{selectAnswer(quiz?.true_answer?.answer_id)}}>
+                  {selectedAnswer === quiz?.true_answer?.answer_id ? "SELECTED" : 'select'}
                 </button>
               </div>
 
-              <div className="answer">
-                An elephant
-                <button>
-                  Select
+              <div className={selectedAnswer === quiz?.false_answer?.answer_id ? "answer selected" : 'answer'}>
+                {quiz?.false_answer?.text}
+                <button onClick={()=>{selectAnswer(quiz?.false_answer?.answer_id)}}>
+                {selectedAnswer === quiz?.false_answer?.answer_id ? "SELECTED" : 'select'}
                 </button>
               </div>
             </div>
 
-            <button id="submitAnswerBtn">Submit answer</button>
+            <button disabled={!selectedAnswer} onClick={()=>postAnswer({quiz_id:quiz.quiz_id,answer_id:selectedAnswer})} id="submitAnswerBtn">Submit answer</button>
           </>
         ) : 'Loading next quiz...'
       }
     </div>
   )
 }
+
+export default connect(st=>st,actionCreators)(Quiz)
